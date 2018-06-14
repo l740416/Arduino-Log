@@ -1,14 +1,31 @@
 
-#include <TimeLib.h> 
 #include "Arduino.h"
 #include <stdarg.h>
 #include "Log.h"
 
-Log::Log() {
+Log::Log()
+{
   memset( buf, '\0', sizeof(buf) );
   idx = 0;
+  m_pHourFunc = NULL;
+	m_pMinuteFunc = NULL;
+	m_pSecondFunc = NULL;
+	m_overridesHeading = false;
 }
 
+Log::Log(LOG_TIME_FUNC hour_func, LOG_TIME_FUNC minute_func, LOG_TIME_FUNC second_func)
+{
+  memset( buf, '\0', sizeof(buf) );
+  idx = 0;
+  m_pHourFunc = hour_func;
+	m_pMinuteFunc = minute_func;
+	m_pSecondFunc = second_func;
+	
+	if(m_pHourFunc != NULL && m_pMinuteFunc != NULL && m_pSecondFunc != NULL)
+  {
+    m_overridesHeading = true;
+  }
+}
 
 size_t Log::write(uint8_t v)
 {
@@ -30,13 +47,16 @@ size_t Log::write(const char *str) {
 
 size_t Log::write(const uint8_t *buffer, size_t size) {
 
-  if( size >= 5 && buffer[0] == '[' && buffer[1] == 'M' && buffer[2] == 'S' && buffer[3] == 'G' && buffer[4] == ']' ) {
-    char str[100];
-    snprintf( str, 100, "[%02d%02d]", minute(), second() );
-    write( str );
-    write( buffer + 5, size - 5 );
-    return size - 5 + strlen(str);
-  } 
+  if(m_overridesHeading == true)
+  {  
+    if( size >= 5 && buffer[0] == '[' && buffer[1] == 'M' && buffer[2] == 'S' && buffer[3] == 'G' && buffer[4] == ']' ) {
+      char str[100];
+      snprintf( str, 100, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
+      write( str );
+      write( buffer + 5, size - 5 );
+      return size - 5 + strlen(str);
+    } 
+  }
   
   for(size_t i = 0; i < size; i++)
   {
