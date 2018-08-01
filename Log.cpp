@@ -50,8 +50,8 @@ size_t Log::write(const uint8_t *buffer, size_t size) {
   if(m_overridesHeading == true)
   {  
     if( size >= 5 && buffer[0] == '[' && buffer[1] == 'M' && buffer[2] == 'S' && buffer[3] == 'G' && buffer[4] == ']' ) {
-      char str[100];
-      snprintf( str, 100, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
+      char str[256];
+      snprintf( str, 256, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
       write( str );
       write( buffer + 5, size - 5 );
       return size - 5 + strlen(str);
