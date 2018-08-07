@@ -50,8 +50,8 @@ size_t Log::write(const uint8_t *buffer, size_t size) {
   if(m_overridesHeading == true)
   {  
     if( size >= 5 && buffer[0] == '[' && buffer[1] == 'M' && buffer[2] == 'S' && buffer[3] == 'G' && buffer[4] == ']' ) {
-      char str[256];
-      snprintf( str, 256, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
+      char str[64];
+      snprintf( str, 64, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
       write( str );
       write( buffer + 5, size - 5 );
       return size - 5 + strlen(str);
@@ -66,12 +66,12 @@ size_t Log::write(const uint8_t *buffer, size_t size) {
   return size;  
 }
 
-size_t Log::printf( char const *fmt, ... ) {
-  // resulting string limited to 256 chars
-  char buf[256]; 
+size_t Log::printf( char const *fmt, ... )
+	{
+  char buf[LOG_MAX_PRINTF_BUF_SIZE]; 
   va_list args;
   va_start( args, fmt );
-  vsnprintf( buf, 256, fmt, args );
+  vsnprintf( buf, sizeof(buf), fmt, args );
   va_end( args );
   return write( ( const uint8_t * ) buf, strlen(buf) );
 }
@@ -79,7 +79,7 @@ size_t Log::printf( char const *fmt, ... ) {
 #ifdef F // check to see if F() macro is available
 size_t Log::printf(const __FlashStringHelper *fmt, ...)
 {
-  char buf[256]; // resulting string limited to 128 chars
+  char buf[LOG_MAX_PRINTF_BUF_SIZE]; // resulting string limited to 128 chars
   va_list args;
   va_start (args, fmt);
   vsnprintf_P(buf, sizeof(buf), (const char *)fmt, args); // progmem for AVR

@@ -5,6 +5,7 @@
 #define _LOG_H_
 
 #define LOG_SIZE 1024
+#define LOG_MAX_PRINTF_BUF_SIZE 1024
 
 typedef int (*LOG_TIME_FUNC) ();
 
