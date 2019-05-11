@@ -35,11 +35,11 @@ class Log : public Print
     }
     const char * get_second() { return buf; }
 
-    void enter( int id ) {
+    void enter(uint32_t id) {
       funcId = id;
     }
     
-    int current_id() {
+    uint32_t current_id() {
       return funcId;
     }   
 
@@ -48,7 +48,7 @@ class Log : public Print
     char buf[LOG_SIZE+1];
     size_t idx;
 
-		int funcId;  
+		uint32_t funcId;  
 		
 		LOG_TIME_FUNC m_pHourFunc;
 		LOG_TIME_FUNC m_pMinuteFunc;
