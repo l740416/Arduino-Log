@@ -54,6 +54,10 @@ class Log : public Print
 		LOG_TIME_FUNC m_pMinuteFunc;
 		LOG_TIME_FUNC m_pSecondFunc;
 		
+		int m_lastHour;
+		int m_lastMinute;
+		int m_lastSecond;
+		
 		bool m_overridesHeading; //<<< replace [MSG] heading with current time
 };
 

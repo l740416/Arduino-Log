@@ -11,6 +11,10 @@ Log::Log()
 	m_pMinuteFunc = NULL;
 	m_pSecondFunc = NULL;
 	m_overridesHeading = false;
+	
+	m_lastHour = -1;
+  m_lastMinute = -1;
+  m_lastSecond = -1;
 }
 
 Log::Log(LOG_TIME_FUNC hour_func, LOG_TIME_FUNC minute_func, LOG_TIME_FUNC second_func)
@@ -50,8 +54,22 @@ size_t Log::write(const uint8_t *buffer, size_t size) {
   if(m_overridesHeading == true)
   {  
     if( size >= 5 && buffer[0] == '[' && buffer[1] == 'M' && buffer[2] == 'S' && buffer[3] == 'G' && buffer[4] == ']' ) {
+      
       char str[64];
-      snprintf( str, 64, "[%02d%02d%02d]", m_pHourFunc(), m_pMinuteFunc(), m_pSecondFunc() );
+      if ((m_lastHour   == m_pHourFunc()) &&
+          (m_lastMinute == m_pMinuteFunc()) &&
+          (m_lastSecond == m_pSecondFunc()))
+      {
+        snprintf(str, 64, "\t");
+      }
+      else
+      {
+        m_lastHour = m_pHourFunc();
+        m_lastMinute = m_pMinuteFunc();
+        m_lastSecond = m_pSecondFunc();
+        snprintf(str, 64, "[%02d%02d%02d]", m_lastHour, m_lastMinute, m_lastSecond);
+      }
+      
       write( str );
       write( buffer + 5, size - 5 );
       return size - 5 + strlen(str);
