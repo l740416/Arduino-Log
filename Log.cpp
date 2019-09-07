@@ -85,23 +85,57 @@ size_t Log::write(const uint8_t *buffer, size_t size) {
 }
 
 size_t Log::printf( char const *fmt, ... )
-	{
-  char buf[LOG_MAX_PRINTF_BUF_SIZE]; 
-  va_list args;
-  va_start( args, fmt );
-  vsnprintf( buf, sizeof(buf), fmt, args );
-  va_end( args );
-  return write( ( const uint8_t * ) buf, strlen(buf) );
+{
+  va_list arg;
+  va_start(arg, fmt);
+  char temp[64];
+  char* buffer = temp;
+  size_t len = vsnprintf(temp, sizeof(temp), fmt, arg);
+  va_end(arg);
+  if (len > sizeof(temp) - 1)
+  {
+    buffer = new char[len + 1];
+    if (!buffer)
+    {
+      return 0;
+    }
+    va_start(arg, fmt);
+    vsnprintf(buffer, len + 1, fmt, arg);
+    va_end(arg);
+  }
+  len = write((const uint8_t*) buffer, len);
+  if (buffer != temp)
+  {
+      delete[] buffer;
+  }
+  return len;
 }
 
 #ifdef F // check to see if F() macro is available
 size_t Log::printf(const __FlashStringHelper *fmt, ...)
 {
-  char buf[LOG_MAX_PRINTF_BUF_SIZE]; // resulting string limited to 128 chars
-  va_list args;
-  va_start (args, fmt);
-  vsnprintf_P(buf, sizeof(buf), (const char *)fmt, args); // progmem for AVR
-  va_end(args);
-  return write( ( const uint8_t * ) buf, strlen(buf) );
+  va_list arg;
+  va_start(arg, fmt);
+  char temp[64];
+  char* buffer = temp;
+  size_t len = vsnprintf_P(temp, sizeof(temp), (PGM_P)fmt, arg);
+  va_end(arg);
+  if (len > sizeof(temp) - 1)
+  {
+    buffer = new char[len + 1];
+    if (!buffer)
+    {
+      return 0;
+    }
+    va_start(arg, fmt);
+    vsnprintf_P(buffer, len + 1, (PGM_P)fmt, arg);
+    va_end(arg);
+  }
+  len = write((const uint8_t*) buffer, len);
+  if (buffer != temp)
+  {
+      delete[] buffer;
+  }
+  return len;
 }
 #endif
